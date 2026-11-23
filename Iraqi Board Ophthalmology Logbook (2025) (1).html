@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iraqi Board of Medical Specialties — Ophthalmology Logbook (2025)</title>
+  <!-- Tailwind CSS (Non-blocking with graceful fallback styles) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2pdf.js (Deferred so it never blocks initial render) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+  <!-- Google Identity Services (GIS - Async & Defer) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap');
+
+    /* Base & Offline Fallback Styling */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      -webkit-font-smoothing: antialiased;
+    }
+    .arabic-font { font-family: 'Amiri', Georgia, serif; }
+    .arabic-ui { font-family: 'Cairo', 'Inter', sans-serif; direction: rtl; text-align: right; }
+    .hidden { display: none !important; }
+    .flex { display: flex; }
+
+    /* Navigation Tabs */
+    .tab-btn { cursor: pointer; user-select: none; }
+    .tab-btn.active { background-color: #0f172a; color: #ffffff; border-color: #0f172a; }
+
+    /* Official PDF Print & Export Template Styles */
+    #pdf-export-container {
+      background: #ffffff;
+      color: #000000;
+      font-family: 'Times New Roman', Times, serif;
+    }
+    .pdf-page {
+      width: 210mm;
+      min-height: 296mm;
+      padding: 15mm 16mm;
+      background: #ffffff;
+      box-sizing: border-box;
+      position: relative;
+      page-break-after: always;
+      break-after: page;
+    }
+    .pdf-page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    .official-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      margin-bottom: 14px;
+      font-size: 11.5pt;
+    }
+    .official-table th, .official-table td {
+      border: 1px solid #000000;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .official-table th {
+      background-color: #f3f4f6;
+      font-weight: bold;
+    }
+    .sig-cell {
+      height: 36px;
+      text-align: center !important;
+      padding: 2px 4px !important;
+    }
+    .sig-cell img {
+      max-height: 32px;
+      max-width: 110px;
+      object-fit: contain;
+      display: inline-block;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #pdf-preview-modal, #pdf-preview-modal * { visibility: visible; }
+      #pdf-preview-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #ffffff;
+        padding: 0;
+        overflow: visible !important;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 font-bold text-lg">
+          👁️
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold leading-tight">Iraqi Board — Ophthalmology Logbook</h1>
+          <p class="text-xs text-slate-300">Scientific Council of Ophthalmology (2025 Edition)</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="save-status" class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          ● Saved Locally
+        </span>
+        <button type="button" id="top-drive-sync-btn" data-action="open-drive-modal" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white border border-blue-400/40 shadow transition flex items-center gap-1.5 cursor-pointer">
+          <span>☁️ Google Drive Sync</span>
+          <span id="top-drive-badge" class="px-1.5 py-0.5 text-[10px] rounded bg-slate-900/50 text-slate-200">Offline</span>
+        </button>
+        <button type="button" data-action="save-standalone" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 transition cursor-pointer">
+          💾 Save App (.html)
+        </button>
+        <button type="button" data-action="export-json" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 transition cursor-pointer">
+          ⬇️ JSON
+        </button>
+        <label class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 transition cursor-pointer">
+          ⬆️ Restore
+          <input type="file" id="import-json-input" accept=".json" class="hidden" />
+        </label>
+        <button type="button" data-action="open-pdf-preview" class="px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow transition cursor-pointer">
+          📄 Preview & Export PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white border-b border-slate-200 text-slate-700">
+      <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto gap-1 py-2">
+        <button type="button" data-tab="dashboard" class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-transparent whitespace-nowrap transition">
+          📊 Dashboard
+        </button>
+        <button type="button" data-tab="profile" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-transparent whitespace-nowrap transition">
+          👤 Personal & Training Info
+        </button>
+        <button type="button" data-tab="scientific" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-transparent whitespace-nowrap transition">
+          🩺 Scientific, Clinic & On-Call
+        </button>
+        <button type="button" data-tab="surgeries" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-transparent whitespace-nowrap transition">
+          🔬 Surgical Operations (8)
+        </button>
+        <button type="button" data-tab="lasers" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-transparent whitespace-nowrap transition">
+          ⚡ Laser Operations
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+
+    <!-- TAB 1: DASHBOARD -->
+    <section id="tab-dashboard" class="tab-panel space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Main Surgeon Total</div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="stat-main-total" class="text-3xl font-bold text-slate-900">0</span>
+            <span class="text-xs font-medium text-slate-500">Target: 90 (5 yrs)</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-100 rounded-full h-2">
+            <div id="bar-main-total" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Assistant Surgeon Total</div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="stat-asst-total" class="text-3xl font-bold text-slate-900">0</span>
+            <span class="text-xs font-medium text-slate-500">Target: 165 (5 yrs)</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-100 rounded-full h-2">
+            <div id="bar-asst-total" class="bg-indigo-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Laser Procedures</div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="stat-laser-total" class="text-3xl font-bold text-slate-900">0</span>
+            <span class="text-xs font-medium text-slate-500">Target: 55 (5 yrs)</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-100 rounded-full h-2">
+            <div id="bar-laser-total" class="bg-amber-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Scientific & On-Call</div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="stat-sci-total" class="text-3xl font-bold text-slate-900">0</span>
+            <span class="text-xs font-medium text-slate-500">Logged Entries</span>
+          </div>
+          <div class="mt-3 flex gap-2">
+            <button type="button" data-action="open-modal-surgery" class="flex-1 text-xs py-1.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 cursor-pointer">+ Surgery</button>
+            <button type="button" data-action="open-modal-activity" class="flex-1 text-xs py-1.5 bg-slate-100 text-slate-800 rounded-lg hover:bg-slate-200 cursor-pointer">+ Activity</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Surgical Minimum Requirements Tracker -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Surgical Minimum Requirements Progress (5 Years)</h2>
+            <p class="text-xs text-slate-500">Live tracker inside app (exported PDF keeps clean official Board numbers)</p>
+          </div>
+          <button type="button" data-action="open-modal-surgery" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer">
+            + Log New Surgery
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="px-5 py-3">Type of Surgery</th>
+                <th class="px-5 py-3">Main Surgeon (Done / Req)</th>
+                <th class="px-5 py-3">Assistant Surgeon (Done / Req)</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-surgery-progress" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Scientific Activity Progress -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Scientific & Clinical Activities Progress</h2>
+            <p class="text-xs text-slate-500">Case presentations, journal clubs, clinics, on-call duties & grand rounds</p>
+          </div>
+          <button type="button" data-action="open-modal-activity" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer">
+            + Log Activity / On-Call
+          </button>
+        </div>
+        <div id="dashboard-activity-cards" class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PERSONAL & TRAINING INFO -->
+    <section id="tab-profile" class="tab-panel hidden space-y-6">
+      <!-- Cloud Sync Banner inside Personal Info -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0">☁️</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Personal Cloud Database (Google Drive Sync)</h3>
+            <p id="profile-drive-summary" class="text-xs text-slate-600 mt-0.5">Not connected yet. Sign in with your Gmail to auto-sync <code>Iraqi_Board_Oph_Logbook_DB.json</code> privately to your own Google Drive.</p>
+          </div>
+        </div>
+        <button type="button" data-action="open-drive-modal" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm shrink-0 cursor-pointer">
+          ☁️ Google Drive Sync & Setup Guide
+        </button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <h2 class="text-base font-bold text-slate-900 mb-4">Trainee Personal Information (Pages 1 & 3)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Student Full Name</label>
+            <input type="text" data-profile="name" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Dr. ..." />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Student Academic Number</label>
+            <input type="text" data-profile="academicNumber" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="e.g. 2025-OPH-..." />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Sex</label>
+            <select data-profile="sex" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+              <option value="">Select...</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Date and Place of Birth</label>
+            <input type="text" data-profile="dob" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="e.g. 28/12/1995 - Baghdad" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nationality</label>
+            <input type="text" data-profile="nationality" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Iraqi" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Year of Passing Primary Examination</label>
+            <input type="text" data-profile="primaryExamYear" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="e.g. 2024" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Year of Graduation</label>
+            <input type="text" data-profile="graduationYear" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="e.g. 2019" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Training Hospitals (Page 3) -->
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-bold text-slate-900">Training Hospitals Rotation (Page 3)</h2>
+          <button type="button" data-action="add-hospital-row" class="px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg cursor-pointer">+ Add Hospital</button>
+        </div>
+        <div id="hospitals-list" class="space-y-2"></div>
+      </div>
+
+      <!-- Annual Vacations & Sick Leave (Page 5) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-slate-900">Annual Vacations (Page 5)</h2>
+            <button type="button" data-action="add-vacation-row" class="px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg cursor-pointer">+ Add Period</button>
+          </div>
+          <div id="vacations-list" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-slate-900">Annual Sick Leave (Page 5)</h2>
+            <button type="button" data-action="add-sick-row" class="px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg cursor-pointer">+ Add Period</button>
+          </div>
+          <div id="sickleave-list" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Supervisor Comments (Pages 4 & 37) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h2 class="text-base font-bold text-slate-900">Comments of Supervisor — Initial/Mid (Page 4)</h2>
+          <textarea data-profile="supComment1" rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Supervisor remarks..."></textarea>
+          <div class="grid grid-cols-2 gap-3">
+            <input type="text" data-profile="supName1" class="px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Supervisor Name" />
+            <input type="date" data-profile="supDate1" class="px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+          </div>
+          <div class="flex items-center justify-between pt-2">
+            <span class="text-xs text-slate-500" id="supSig1-status">No e-signature (blank box in PDF)</span>
+            <button type="button" data-action="sign-profile-sup1" class="px-3 py-1.5 bg-amber-500 text-slate-950 text-xs font-semibold rounded-lg cursor-pointer">✍️ Sign Electronically</button>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h2 class="text-base font-bold text-slate-900">Comments of Supervisor — Final (Page 37)</h2>
+          <textarea data-profile="supComment2" rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Final supervisor remarks..."></textarea>
+          <div class="grid grid-cols-2 gap-3">
+            <input type="text" data-profile="supName2" class="px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Supervisor Name" />
+            <input type="date" data-profile="supDate2" class="px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+          </div>
+          <div class="flex items-center justify-between pt-2">
+            <span class="text-xs text-slate-500" id="supSig2-status">No e-signature (blank box in PDF)</span>
+            <button type="button" data-action="sign-profile-sup2" class="px-3 py-1.5 bg-amber-500 text-slate-950 text-xs font-semibold rounded-lg cursor-pointer">✍️ Sign Electronically</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: SCIENTIFIC, CLINIC & ON-CALL -->
+    <section id="tab-scientific" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-2" id="activity-filter-pills"></div>
+        <button type="button" data-action="open-modal-activity" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer">
+          + Add Activity / On-Call
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">#</th>
+                <th class="px-4 py-3">Category</th>
+                <th class="px-4 py-3">Date</th>
+                <th class="px-4 py-3">Details / Preference</th>
+                <th class="px-4 py-3">Place / Subject</th>
+                <th class="px-4 py-3">Supervisor Signature</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="activities-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: SURGICAL OPERATIONS (8 CATEGORIES) -->
+    <section id="tab-surgeries" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-1.5" id="surgery-filter-pills"></div>
+        <button type="button" data-action="open-modal-surgery" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer">
+          + Add Surgery
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">N.</th>
+                <th class="px-4 py-3">Category</th>
+                <th class="px-4 py-3">Date</th>
+                <th class="px-4 py-3">Patient ID</th>
+                <th class="px-4 py-3">Main Surgeon</th>
+                <th class="px-4 py-3">Assistant Surgeon</th>
+                <th class="px-4 py-3">Surgery</th>
+                <th class="px-4 py-3">Supervisor Signature</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="surgeries-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: LASER OPERATIONS -->
+    <section id="tab-lasers" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Laser Operations Performed by Trainee (Pages 35–36)</h2>
+          <p class="text-xs text-slate-500">YAG laser 532nm (25) • YAG laser 1064nm Iridotomy (15) • YAG laser 1064nm Capsulotomy (15)</p>
+        </div>
+        <button type="button" data-action="open-modal-laser" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-semibold rounded-lg shadow-sm cursor-pointer">
+          + Add Laser Procedure
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">Num.</th>
+                <th class="px-4 py-3">Date</th>
+                <th class="px-4 py-3">Patient ID</th>
+                <th class="px-4 py-3">Laser Type</th>
+                <th class="px-4 py-3">Supervisor Signature</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="lasers-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: GOOGLE DRIVE SYNC & SETUP GUIDE -->
+  <div id="modal-drive" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto space-y-5">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">☁️</span>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Google Drive Sync — Private User Database</h3>
+            <p class="text-xs text-slate-500">Two-Way Auto-Sync • File: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">Iraqi_Board_Oph_Logbook_DB.json</code></p>
+          </div>
+        </div>
+        <button type="button" data-action="close-modals" class="text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+
+      <!-- Connection Status & User Card -->
+      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div class="text-xs font-semibold uppercase text-slate-500">Sync Status</div>
+            <div id="drive-modal-status" class="text-sm font-bold text-slate-800 mt-0.5">Disconnected (Local Mode)</div>
+            <div id="drive-user-info" class="text-xs text-slate-500 mt-0.5">Sign in with your Gmail to create/sync your private database file in Google Drive.</div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="btn-google-signin" data-action="google-signin" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 cursor-pointer">
+              <span>🔑 Sign in with Google (Gmail)</span>
+            </button>
+            <button type="button" id="btn-drive-sync-now" data-action="drive-sync-now" class="hidden px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer">
+              🔄 Sync Now
+            </button>
+            <button type="button" id="btn-google-signout" data-action="google-signout" class="hidden px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold rounded-lg cursor-pointer">
+              Sign Out
+            </button>
+          </div>
+        </div>
+        <div id="drive-sync-log" class="text-xs text-slate-600 bg-white p-2.5 rounded-lg border border-slate-200 hidden"></div>
+      </div>
+
+      <!-- Client ID Configuration -->
+      <div class="space-y-2">
+        <label class="block text-xs font-bold text-slate-700">Google OAuth 2.0 Client ID</label>
+        <div class="flex gap-2">
+          <input type="text" id="google-client-id-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono" placeholder="xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com" />
+          <button type="button" data-action="save-client-id" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shrink-0 cursor-pointer">
+            Save ID
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-500">
+          Security Scope: <code class="bg-slate-100 px-1 rounded">https://www.googleapis.com/auth/drive.file</code> — The app can <strong>only</strong> access the single file it creates (<code class="bg-slate-100 px-1 rounded">Iraqi_Board_Oph_Logbook_DB.json</code>) and cannot see any other files in your Drive.
+        </p>
+      </div>
+
+      <!-- Arabic Setup Guide -->
+      <div class="arabic-ui bg-amber-50/70 border border-amber-200 rounded-xl p-4 space-y-2.5">
+        <h4 class="text-sm font-bold text-amber-950 flex items-center gap-1.5">
+          <span>📖 دليل خطوات الإعداد المجاني لربط Google Drive (مرة واحدة فقط)</span>
+        </h4>
+        <ol class="list-decimal list-inside text-xs text-slate-800 space-y-1.5 leading-relaxed">
+          <li>افتح موقع <strong>Google Cloud Console</strong> (<span dir="ltr" class="font-mono text-blue-700">console.cloud.google.com</span>) وسجّل الدخول بحسابك في Gmail.</li>
+          <li>اضغط على <strong>New Project</strong> في الأعلى وأنشئ مشروعاً جديداً (مثلاً باسم: <span dir="ltr" class="font-mono">Ophthalmology Logbook</span>).</li>
+          <li>من القائمة الجانبية اختر <strong>APIs &amp; Services &gt; Library</strong>، ابحث عن <strong>Google Drive API</strong> واضغط على <strong>Enable</strong> (تفعيل).</li>
+          <li>اذهب إلى <strong>OAuth consent screen</strong>، اختر <strong>External</strong>، اكتب اسم التطبيق وبريدك الإلكتروني، وأضف بريدك (أو إيميلات زملائك الأطباء) ضمن قائمة <strong>Test users</strong>.</li>
+          <li>اذهب إلى <strong>Credentials &gt; Create Credentials &gt; OAuth client ID</strong>، واختر نوع التطبيق <strong>Web application</strong>.</li>
+          <li>في خانة <strong>Authorized JavaScript origins</strong> أضف رابط الموقع الذي تستضيف عليه الملف (مثلاً <span dir="ltr" class="font-mono">http://localhost</span> أو رابط GitHub Pages / Netlify)، ثم اضغط <strong>Create</strong>.</li>
+          <li>انسخ الـ <strong>Client ID</strong> الظاهر لك والصقه في الحقل أعلاه (وهو مثبت مسبقاً في الكود عند <span dir="ltr" class="font-mono bg-white px-1 rounded border">DEFAULT_GOOGLE_CLIENT_ID</span> ليعمل لجميع الأطباء مباشرة).</li>
+        </ol>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t">
+        <button type="button" data-action="close-modals" class="px-5 py-2 text-xs font-semibold bg-slate-900 text-white rounded-lg cursor-pointer">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT SURGERY -->
+  <div id="modal-surgery" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 id="modal-surgery-title" class="text-lg font-bold text-slate-900">Log Surgical Procedure</h3>
+        <button type="button" data-action="close-modals" class="text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+      <input type="hidden" id="surg-edit-id" />
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Surgical Category (Logbook Section)</label>
+          <select id="surg-category" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
+            <input type="date" id="surg-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Patient ID</label>
+            <input type="text" id="surg-patient-id" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="e.g. 48291" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Main Surgeon</label>
+            <input type="text" id="surg-main" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Trainee / Consultant name" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Assistant Surgeon</label>
+            <input type="text" id="surg-assistant" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Assistant name or -" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Your Role (For Dashboard Counter)</label>
+          <select id="surg-role" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+            <option value="main">Main Surgeon</option>
+            <option value="assistant">Assistant Surgeon</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Surgery Procedure (Auto-populated list)</label>
+          <select id="surg-procedure-select" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"></select>
+          <input type="text" id="surg-procedure-custom" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm mt-2 hidden" placeholder="Type custom surgery procedure..." />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-semibold text-slate-700">Supervisor Signature (Optional — leave blank for paper signing)</label>
+            <button type="button" data-action="clear-sig-surgery" class="text-xs text-rose-600 hover:underline cursor-pointer">Clear Pad</button>
+          </div>
+          <canvas id="sig-canvas-surgery" width="440" height="100" class="w-full h-24 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 touch-none cursor-crosshair"></canvas>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-3 border-t">
+        <button type="button" data-action="close-modals" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancel</button>
+        <button type="button" data-action="save-surgery" class="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer">Save Surgery</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT ACTIVITY -->
+  <div id="modal-activity" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 id="modal-activity-title" class="text-lg font-bold text-slate-900">Log Scientific / Clinical Activity</h3>
+        <button type="button" data-action="close-modals" class="text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+      <input type="hidden" id="act-edit-id" />
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Activity Type</label>
+          <select id="act-category" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
+          <input type="date" id="act-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+        </div>
+        <div>
+          <label id="act-col2-label" class="block text-xs font-semibold text-slate-700 mb-1">Details</label>
+          <input type="text" id="act-col2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Topic, cases seen, or emergency duty details..." />
+        </div>
+        <div id="act-col3-wrapper" class="hidden">
+          <label id="act-col3-label" class="block text-xs font-semibold text-slate-700 mb-1">Place / Subject</label>
+          <input type="text" id="act-col3" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Hospital / Conference hall or Research subject..." />
+        </div>
+        <div id="act-sig-wrapper">
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-semibold text-slate-700">Supervisor Signature (Optional — leave blank for paper signing)</label>
+            <button type="button" data-action="clear-sig-activity" class="text-xs text-rose-600 hover:underline cursor-pointer">Clear Pad</button>
+          </div>
+          <canvas id="sig-canvas-activity" width="440" height="100" class="w-full h-24 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 touch-none cursor-crosshair"></canvas>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-3 border-t">
+        <button type="button" data-action="close-modals" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancel</button>
+        <button type="button" data-action="save-activity" class="px-5 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg cursor-pointer">Save Activity</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT LASER -->
+  <div id="modal-laser" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 id="modal-laser-title" class="text-lg font-bold text-slate-900">Log Laser Operation</h3>
+        <button type="button" data-action="close-modals" class="text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+      <input type="hidden" id="las-edit-id" />
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
+            <input type="date" id="las-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Patient ID</label>
+            <input type="text" id="las-patient-id" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="e.g. 90124" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Laser Type</label>
+          <select id="las-type" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+            <option value="YAG laser 532nm (Retinal disease)">YAG laser 532nm (For retinal disease)</option>
+            <option value="YAG laser 1064nm (Iridotomy)">YAG laser 1064nm (Iridotomy)</option>
+            <option value="YAG laser 1064nm (Capsulotomy)">YAG laser 1064nm (Capsulotomy)</option>
+          </select>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-semibold text-slate-700">Supervisor Signature (Optional — leave blank for paper signing)</label>
+            <button type="button" data-action="clear-sig-laser" class="text-xs text-rose-600 hover:underline cursor-pointer">Clear Pad</button>
+          </div>
+          <canvas id="sig-canvas-laser" width="440" height="100" class="w-full h-24 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 touch-none cursor-crosshair"></canvas>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-3 border-t">
+        <button type="button" data-action="close-modals" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancel</button>
+        <button type="button" data-action="save-laser" class="px-5 py-2 text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg cursor-pointer">Save Laser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: QUICK SIGNATURE ONLY -->
+  <div id="modal-quicksig" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-base font-bold text-slate-900">Supervisor Electronic Signature</h3>
+        <button type="button" data-action="close-modals" class="text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+      <input type="hidden" id="quicksig-target" />
+      <p class="text-xs text-slate-500">Sign below using touch or mouse. Click Clear to leave blank for paper signature.</p>
+      <canvas id="sig-canvas-quick" width="380" height="120" class="w-full h-28 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 touch-none cursor-crosshair"></canvas>
+      <div class="flex justify-between pt-2">
+        <button type="button" data-action="clear-sig-quick" class="px-3 py-1.5 text-xs text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 cursor-pointer">Clear Signature</button>
+        <div class="flex gap-2">
+          <button type="button" data-action="close-modals" class="px-4 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancel</button>
+          <button type="button" data-action="save-quicksig" class="px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white rounded-lg cursor-pointer">Apply Signature</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: OFFICIAL PDF PREVIEW & DOWNLOAD -->
+  <div id="pdf-preview-modal" class="fixed inset-0 bg-slate-900/80 hidden flex-col z-50 overflow-y-auto">
+    <div class="no-print bg-slate-900 text-white px-4 py-3 sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-slate-700">
+      <div>
+        <h3 class="text-sm font-bold">Official Iraqi Board Logbook PDF Preview (2025 Format)</h3>
+        <p class="text-xs text-slate-300">Exact original column structure • Blank signature cells ready for pen signing if unsigned</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" id="btn-download-pdf" data-action="download-pdf-file" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-lg shadow cursor-pointer">
+          ⬇️ Download PDF File (.pdf)
+        </button>
+        <button type="button" data-action="print-pdf" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium rounded-lg cursor-pointer">
+          🖨️ Print
+        </button>
+        <button type="button" data-action="close-modals" class="px-3 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-lg cursor-pointer">
+          Close
+        </button>
+      </div>
+    </div>
+    <div class="flex-1 py-6 px-2 flex justify-center overflow-x-auto">
+      <div id="pdf-export-container" class="shadow-2xl"></div>
+    </div>
+  </div>
+
+  <!-- Embedded State Placeholder for Standalone Export -->
+  <script id="embedded-logbook-data" type="application/json">null</script>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // =========================================================================
+      // EMBEDDED GOOGLE OAUTH CLIENT ID FOR ALL DOCTORS:
+      const DEFAULT_GOOGLE_CLIENT_ID = '622260853077-pngggelo3t4m1i9j7pknur1mtkvglrma.apps.googleusercontent.com';
+      // =========================================================================
+
+      const DRIVE_DB_FILENAME = 'Iraqi_Board_Oph_Logbook_DB.json';
+      const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+      const CLIENT_ID_STORAGE_KEY = 'iraqi_board_google_client_id';
+      const STORAGE_KEY = 'iraqi_board_oph_logbook_2025_v6';
+      const DB_NAME = 'IraqiBoardOphLogbookDB';
+      const STORE_NAME = 'logbookStore';
+
+      const SURGERY_CATEGORIES = [
+        {
+          id: 'oculoplastic',
+          title: 'Oculoplastic & lid surgery',
+          reqMain: 10,
+          reqAsst: 20,
+          procedures: [
+            'Chalazion',
+            'Tarsorrhaphy',
+            'Repair of lid wound',
+            'Ptosis',
+            'Reconstructive lid surgery'
+          ]
+        },
+        {
+          id: 'lacrimal',
+          title: 'Lacrimal Surgery',
+          reqMain: 0,
+          reqAsst: 0,
+          procedures: [
+            'Probing',
+            'Irrigation',
+            'Intubation',
+            'DCR (Dacryocystorhinostomy)'
+          ]
+        },
+        {
+          id: 'strabismus',
+          title: 'Strabismus Surgery',
+          reqMain: 20,
+          reqAsst: 30,
+          procedures: [
+            'Recession',
+            'Resection',
+            'Recession and Resection'
+          ]
+        },
+        {
+          id: 'ecce',
+          title: 'ECCE',
+          reqMain: 20,
+          reqAsst: 40,
+          procedures: [
+            'ECCE and IOL implantation',
+            'ECCE'
+          ]
+        },
+        {
+          id: 'phaco',
+          title: 'Phacoemulsification',
+          shortTitle: 'Phaco',
+          reqMain: 30,
+          reqAsst: 40,
+          procedures: [
+            'Phacoemulsification and IOL implantation',
+            'Phacoemulsification'
+          ]
+        },
+        {
+          id: 'glaucoma',
+          title: 'Glaucoma Surgery',
+          reqMain: 5,
+          reqAsst: 10,
+          procedures: [
+            'Trabeculotomy',
+            'Trabeculectomy',
+            'Filtering with antimetabolites',
+            'Combined phaco-trabeculectomy'
+          ]
+        },
+        {
+          id: 'corneal',
+          title: 'Corneal Surgery',
+          reqMain: 5,
+          reqAsst: 10,
+          procedures: [
+            'Removal of corneal FB',
+            'Conjunctival graft',
+            'Amniotic membrane graft',
+            'Keratoplasty',
+            'Repair of corneal laceration'
+          ]
+        },
+        {
+          id: 'vitreoretinal',
+          title: 'Vitreoretinal surgery',
+          reqMain: 0,
+          reqAsst: 15,
+          procedures: [
+            'Scleral buckling procedures',
+            'Pars plana vitrectomy'
+          ]
+        }
+      ];
+
+      const ACTIVITY_CATEGORIES = [
+        { id: 'case_presentation', title: 'Case Presentation (10)', short: 'Case Presentation', reqText: '3 per year (10 min)', col2: 'Details', col3: null, hasSig: true },
+        { id: 'journal_club', title: 'Journal Club (10)', short: 'Journal Club', reqText: '3 per year (10 min)', col2: 'Details', col3: null, hasSig: true },
+        { id: 'outpatient_clinic', title: 'Out Patient Clinic (40 per year)', short: 'Outpatient Clinic', reqText: '1 per week (40/yr)', col2: 'Details', col3: null, hasSig: true },
+        { id: 'on_call', title: 'On call duties (40 per year)', short: 'On-Call Duties', reqText: '1 per week (40/yr)', col2: 'Details', col3: null, hasSig: true },
+        { id: 'grand_round', title: 'Grand Round (40 per year)', short: 'Grand Round', reqText: '1 per week (40/yr)', col2: 'Details', col3: null, hasSig: true },
+        { id: 'periodic_scientific', title: 'Periodic Scientific Activities (lectures, scientific seminars)', short: 'Periodic Scientific', reqText: 'Ongoing', col2: 'Details', col3: 'Place', hasSig: false },
+        { id: 'research', title: 'Participation in the educational and practical research process for residents', short: 'Research Process', reqText: 'Ongoing', col2: 'Preference', col3: 'Subject', hasSig: false }
+      ];
+
+      const DEFAULT_STATE = {
+        updatedAt: 0,
+        profile: {
+          name: '',
+          academicNumber: '',
+          sex: '',
+          dob: '',
+          nationality: 'Iraqi',
+          primaryExamYear: '',
+          graduationYear: '',
+          hospitals: [{ date: '', hospital: '' }],
+          vacations: [{ from: '', to: '' }],
+          sickLeaves: [{ from: '', to: '' }],
+          supComment1: '',
+          supName1: '',
+          supDate1: '',
+          supSig1: '',
+          supComment2: '',
+          supName2: '',
+          supDate2: '',
+          supSig2: ''
+        },
+        surgeries: [],
+        activities: [],
+        lasers: []
+      };
+
+      let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      let activeSurgeryFilter = 'all';
+      let activeActivityFilter = 'all';
+
+      // Google Drive Sync State
+      let googleAccessToken = null;
+      let googleUserEmail = '';
+      let driveFileId = null;
+      let driveSyncTimer = null;
+      let isSyncing = false;
+      let gisTokenClient = null;
+
+      function escapeHtml(str) {
+        return String(str == null ? '' : str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function getGoogleClientId() {
+        try {
+          const saved = localStorage.getItem(CLIENT_ID_STORAGE_KEY);
+          if (saved && saved.trim()) return saved.trim();
+        } catch (e) {}
+        return DEFAULT_GOOGLE_CLIENT_ID.trim();
+      }
+
+      function setDriveLog(msg, isError) {
+        const logEl = document.getElementById('drive-sync-log');
+        if (!logEl) return;
+        logEl.textContent = msg;
+        logEl.classList.remove('hidden', 'text-rose-600', 'text-emerald-700', 'text-slate-600');
+        logEl.classList.add(isError ? 'text-rose-600' : 'text-emerald-700');
+      }
+
+      function updateDriveUI() {
+        const badge = document.getElementById('top-drive-badge');
+        const modalStatus = document.getElementById('drive-modal-status');
+        const userInfo = document.getElementById('drive-user-info');
+        const profileSummary = document.getElementById('profile-drive-summary');
+        const btnSignIn = document.getElementById('btn-google-signin');
+        const btnSyncNow = document.getElementById('btn-drive-sync-now');
+        const btnSignOut = document.getElementById('btn-google-signout');
+
+        if (googleAccessToken) {
+          if (badge) {
+            badge.textContent = isSyncing ? 'Syncing...' : 'Synced ✓';
+            badge.className = 'px-1.5 py-0.5 text-[10px] rounded bg-emerald-500 text-slate-950 font-bold';
+          }
+          if (modalStatus) {
+            modalStatus.textContent = isSyncing ? '🔄 Syncing with Google Drive...' : '✅ Connected & Auto-Syncing (1s background sync)';
+            modalStatus.className = 'text-sm font-bold text-emerald-700 mt-0.5';
+          }
+          if (userInfo) {
+            userInfo.textContent = 'Signed in as: ' + (googleUserEmail || 'Google Account') + ' • Database: ' + DRIVE_DB_FILENAME;
+          }
+          if (profileSummary) {
+            profileSummary.innerHTML = 'Connected as <strong>' + escapeHtml(googleUserEmail || 'Google User') + '</strong>. Auto-syncing <code>' + DRIVE_DB_FILENAME + '</code> in background.';
+          }
+          if (btnSignIn) btnSignIn.classList.add('hidden');
+          if (btnSyncNow) btnSyncNow.classList.remove('hidden');
+          if (btnSignOut) btnSignOut.classList.remove('hidden');
+        } else {
+          if (badge) {
+            badge.textContent = 'Offline';
+            badge.className = 'px-1.5 py-0.5 text-[10px] rounded bg-slate-900/50 text-slate-200';
+          }
+          if (modalStatus) {
+            modalStatus.textContent = 'Disconnected (Local Mode)';
+            modalStatus.className = 'text-sm font-bold text-slate-800 mt-0.5';
+          }
+          if (userInfo) {
+            userInfo.textContent = 'Sign in with your Gmail to create/sync your private database file in Google Drive.';
+          }
+          if (profileSummary) {
+            profileSummary.innerHTML = 'Not connected yet. Sign in with your Gmail to auto-sync <code>' + DRIVE_DB_FILENAME + '</code> privately to your own Google Drive.';
+          }
+          if (btnSignIn) btnSignIn.classList.remove('hidden');
+          if (btnSyncNow) btnSyncNow.classList.add('hidden');
+          if (btnSignOut) btnSignOut.classList.add('hidden');
+        }
+      }
+
+      async function fetchGoogleUserProfile() {
+        if (!googleAccessToken) return;
+        try {
+          const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: 'Bearer ' + googleAccessToken }
+          });
+          if (res.ok) {
+            const info = await res.json();
+            googleUserEmail = info.email || '';
+            updateDriveUI();
+          }
+        } catch (e) {}
+      }
+
+      async function findDriveDbFile() {
+        const q = encodeURIComponent("name = '" + DRIVE_DB_FILENAME + "' and trashed = false");
+        const url = 'https://www.googleapis.com/drive/v3/files?q=' + q + '&spaces=drive&fields=files(id,name,modifiedTime)';
+        const res = await fetch(url, {
+          headers: { Authorization: 'Bearer ' + googleAccessToken }
+        });
+        if (!res.ok) throw new Error('Drive search failed (' + res.status + ')');
+        const data = await res.json();
+        return (data.files && data.files.length > 0) ? data.files[0] : null;
+      }
+
+      async function downloadDriveDbFile(fileId) {
+        const url = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '?alt=media';
+        const res = await fetch(url, {
+          headers: { Authorization: 'Bearer ' + googleAccessToken }
+        });
+        if (!res.ok) throw new Error('Drive download failed (' + res.status + ')');
+        return await res.json();
+      }
+
+      async function uploadDriveDbFile(existingFileId) {
+        const metadata = {
+          name: DRIVE_DB_FILENAME,
+          mimeType: 'application/json'
+        };
+        const boundary = '-------314159265358979323846';
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const closeDelim = "\r\n--" + boundary + "--";
+
+        const multipartRequestBody =
+          delimiter +
+          'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+          JSON.stringify(metadata) +
+          delimiter +
+          'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+          JSON.stringify(appState) +
+          closeDelim;
+
+        const url = existingFileId
+          ? 'https://www.googleapis.com/upload/drive/v3/files/' + encodeURIComponent(existingFileId) + '?uploadType=multipart'
+          : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+
+        const res = await fetch(url, {
+          method: existingFileId ? 'PATCH' : 'POST',
+          headers: {
+            Authorization: 'Bearer ' + googleAccessToken,
+            'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+          },
+          body: multipartRequestBody
+        });
+        if (!res.ok) throw new Error('Drive upload failed (' + res.status + ')');
+        const result = await res.json();
+        if (result && result.id) driveFileId = result.id;
+        return result;
+      }
+
+      async function twoWayCloudSync(isInitialConnect) {
+        if (!googleAccessToken) return;
+        isSyncing = true;
+        updateDriveUI();
+        try {
+          const remoteFile = await findDriveDbFile();
+          if (remoteFile) {
+            driveFileId = remoteFile.id;
+            const remoteData = await downloadDriveDbFile(driveFileId);
+            const remoteUpdatedAt = Number(remoteData && remoteData.updatedAt) || 0;
+            const localUpdatedAt = Number(appState.updatedAt) || 0;
+
+            if (remoteUpdatedAt > localUpdatedAt) {
+              mergeState(remoteData);
+              appState.updatedAt = remoteUpdatedAt;
+              saveLocalOnly();
+              renderAll();
+              setDriveLog('Pulled newer data from Google Drive (' + new Date(remoteUpdatedAt).toLocaleString() + ').', false);
+            } else if (localUpdatedAt > remoteUpdatedAt) {
+              await uploadDriveDbFile(driveFileId);
+              setDriveLog('Uploaded latest local changes to Google Drive (' + new Date().toLocaleTimeString() + ').', false);
+            } else if (isInitialConnect) {
+              setDriveLog('Cloud and local databases are already in sync.', false);
+            }
+          } else {
+            if (!appState.updatedAt) appState.updatedAt = Date.now();
+            await uploadDriveDbFile(null);
+            setDriveLog('Created private database file "' + DRIVE_DB_FILENAME + '" in your Google Drive.', false);
+          }
+          const statusEl = document.getElementById('save-status');
+          if (statusEl) {
+            statusEl.textContent = '☁️ Cloud Synced (' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ')';
+          }
+        } catch (err) {
+          setDriveLog('Sync error: ' + err.message, true);
+          if (String(err.message).indexOf('401') !== -1) {
+            googleAccessToken = null;
+          }
+        } finally {
+          isSyncing = false;
+          updateDriveUI();
+        }
+      }
+
+      function scheduleBackgroundDriveSync() {
+        if (!googleAccessToken) return;
+        if (driveSyncTimer) clearTimeout(driveSyncTimer);
+        driveSyncTimer = setTimeout(function() {
+          twoWayCloudSync(false);
+        }, 1000);
+      }
+
+      function initGoogleTokenClient() {
+        try {
+          const clientId = getGoogleClientId();
+          if (!clientId) {
+            gisTokenClient = null;
+            return false;
+          }
+          if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
+            return false;
+          }
+          gisTokenClient = window.google.accounts.oauth2.initTokenClient({
+            client_id: clientId,
+            scope: DRIVE_SCOPE + ' email profile',
+            callback: async function(tokenResponse) {
+              if (tokenResponse && tokenResponse.access_token) {
+                googleAccessToken = tokenResponse.access_token;
+                updateDriveUI();
+                await fetchGoogleUserProfile();
+                await twoWayCloudSync(true);
+              } else if (tokenResponse && tokenResponse.error) {
+                setDriveLog('Google OAuth error: ' + (tokenResponse.error_description || tokenResponse.error), true);
+              } else {
+                setDriveLog('Google Sign-In did not return an access token.', true);
+              }
+            },
+            error_callback: function(err) {
+              const errType = (err && err.type) ? err.type : 'unknown_error';
+              if (errType === 'popup_closed') {
+                setDriveLog('Sign-in window was closed before completing login. Please try again.', true);
+              } else if (errType === 'popup_failed_to_open') {
+                setDriveLog('Pop-up blocked by browser! Please allow pop-ups for this site and tap Sign in again.', true);
+              } else {
+                setDriveLog('Google Sign-In error (' + errType + '): ' + ((err && err.message) || 'Check Authorized JavaScript origins in Google Cloud Console.'), true);
+              }
+            }
+          });
+          return true;
+        } catch (err) {
+          gisTokenClient = null;
+          return false;
+        }
+      }
+
+      function startGoogleSignIn() {
+        const protocol = window.location.protocol;
+        const origin = window.location.origin;
+
+        if (protocol === 'file:' || !origin || origin === 'null') {
+          setDriveLog(
+            'Google Sign-In cannot run from a local file (file://) or sandboxed preview frame. ' +
+            'Please host this HTML file on HTTPS/HTTP (e.g., GitHub Pages or Netlify) and add its URL to Authorized JavaScript origins in Google Cloud Console. ' +
+            '(تنبيه: تسجيل دخول Google يتطلب فتح التطبيق عبر رابط ويب HTTPS/HTTP وليس كملف محلي file://).',
+            true
+          );
+          return;
+        }
+
+        const clientId = getGoogleClientId();
+        if (!clientId) {
+          setDriveLog('Please enter your Google OAuth Client ID first (see Arabic setup guide below).', true);
+          const inp = document.getElementById('google-client-id-input');
+          if (inp) inp.focus();
+          return;
+        }
+
+        if (!gisTokenClient && !initGoogleTokenClient()) {
+          setDriveLog('Google Identity Services library is still loading or blocked by network. Please wait a moment and tap Sign in again.', true);
+          return;
+        }
+
+        try {
+          gisTokenClient.requestAccessToken({ prompt: 'consent' });
+        } catch (err) {
+          setDriveLog('Unable to open Google Sign-In popup: ' + err.message, true);
+        }
+      }
+
+      // IndexedDB Helper
+      function saveToIndexedDB(data) {
+        try {
+          if (!window.indexedDB) return;
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = function(e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME);
+            }
+          };
+          req.onsuccess = function(e) {
+            const db = e.target.result;
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).put(data, 'current');
+          };
+        } catch (err) {}
+      }
+
+      function loadFromIndexedDB(callback) {
+        try {
+          if (!window.indexedDB) {
+            callback(null);
+            return;
+          }
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = function(e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME);
+            }
+          };
+          req.onsuccess = function(e) {
+            const db = e.target.result;
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const getReq = tx.objectStore(STORE_NAME).get('current');
+            getReq.onsuccess = function() {
+              callback(getReq.result || null);
+            };
+            getReq.onerror = function() { callback(null); };
+          };
+          req.onerror = function() { callback(null); };
+        } catch (err) {
+          callback(null);
+        }
+      }
+
+      function saveLocalOnly() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        } catch (e) {}
+        saveToIndexedDB(appState);
+      }
+
+      function persistState() {
+        appState.updatedAt = Date.now();
+        saveLocalOnly();
+        const statusEl = document.getElementById('save-status');
+        if (statusEl) {
+          statusEl.textContent = (googleAccessToken ? '☁️ Syncing... ' : '● Saved ') + '(' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ')';
+        }
+        scheduleBackgroundDriveSync();
+      }
+
+      function mergeState(loaded) {
+        if (!loaded || typeof loaded !== 'object') return;
+        appState = {
+          updatedAt: Number(loaded.updatedAt) || 0,
+          profile: Object.assign({}, DEFAULT_STATE.profile, loaded.profile || {}),
+          surgeries: Array.isArray(loaded.surgeries) ? loaded.surgeries : [],
+          activities: Array.isArray(loaded.activities) ? loaded.activities : [],
+          lasers: Array.isArray(loaded.lasers) ? loaded.lasers : []
+        };
+        if (!Array.isArray(appState.profile.hospitals) || !appState.profile.hospitals.length) {
+          appState.profile.hospitals = [{ date: '', hospital: '' }];
+        }
+        if (!Array.isArray(appState.profile.vacations) || !appState.profile.vacations.length) {
+          appState.profile.vacations = [{ from: '', to: '' }];
+        }
+        if (!Array.isArray(appState.profile.sickLeaves) || !appState.profile.sickLeaves.length) {
+          appState.profile.sickLeaves = [{ from: '', to: '' }];
+        }
+      }
+
+      function initStorage() {
+        const cidInput = document.getElementById('google-client-id-input');
+        if (cidInput) cidInput.value = getGoogleClientId();
+
+        const embeddedScript = document.getElementById('embedded-logbook-data');
+        if (embeddedScript && embeddedScript.textContent && embeddedScript.textContent.trim() !== 'null') {
+          try {
+            const parsed = JSON.parse(embeddedScript.textContent);
+            if (parsed) mergeState(parsed);
+          } catch (e) {}
+        }
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsedLocal = JSON.parse(raw);
+            if ((Number(parsedLocal.updatedAt) || 0) >= (Number(appState.updatedAt) || 0)) {
+              mergeState(parsedLocal);
+            }
+          }
+        } catch (e) {}
+        loadFromIndexedDB(function(idbData) {
+          if (idbData && (Number(idbData.updatedAt) || 0) > (Number(appState.updatedAt) || 0)) {
+            mergeState(idbData);
+            renderAll();
+          }
+        });
+      }
+
+      // Signature Pad Manager
+      const sigPads = {};
+      function setupSignatureCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        let drawing = false;
+        let hasInk = false;
+
+        function getPos(e) {
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = canvas.width / (rect.width || canvas.width);
+          const scaleY = canvas.height / (rect.height || canvas.height);
+          const clientX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+          const clientY = (e.touches && e.touches.length) ? e.touches[0].clientY : e.clientY;
+          return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+          };
+        }
+
+        function startDraw(e) {
+          drawing = true;
+          hasInk = true;
+          const pos = getPos(e);
+          ctx.beginPath();
+          ctx.moveTo(pos.x, pos.y);
+          if (e.cancelable) e.preventDefault();
+        }
+
+        function moveDraw(e) {
+          if (!drawing) return;
+          const pos = getPos(e);
+          ctx.lineTo(pos.x, pos.y);
+          ctx.stroke();
+          if (e.cancelable) e.preventDefault();
+        }
+
+        function endDraw() {
+          drawing = false;
+        }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', moveDraw);
+        window.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', moveDraw, { passive: false });
+        canvas.addEventListener('touchend', endDraw);
+
+        const controller = {
+          clear: function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasInk = false;
+          },
+          loadDataUrl: function(dataUrl) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasInk = false;
+            if (dataUrl) {
+              const img = new Image();
+              img.onload = function() {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                hasInk = true;
+              };
+              img.src = dataUrl;
+            }
+          },
+          getDataUrl: function() {
+            return hasInk ? canvas.toDataURL('image/png') : '';
+          }
+        };
+        sigPads[canvasId] = controller;
+        return controller;
+      }
+
+      function updateSurgeryProcedureDropdown(categoryId, selectedValue) {
+        const cat = SURGERY_CATEGORIES.find(c => c.id === categoryId) || SURGERY_CATEGORIES[0];
+        const selectEl = document.getElementById('surg-procedure-select');
+        const customInput = document.getElementById('surg-procedure-custom');
+        if (!selectEl || !customInput) return;
+        selectEl.innerHTML = '';
+
+        cat.procedures.forEach(proc => {
+          const opt = document.createElement('option');
+          opt.value = proc;
+          opt.textContent = proc;
+          selectEl.appendChild(opt);
+        });
+
+        const customOpt = document.createElement('option');
+        customOpt.value = '__custom__';
+        customOpt.textContent = 'Other / Custom Procedure...';
+        selectEl.appendChild(customOpt);
+
+        if (selectedValue) {
+          if (cat.procedures.indexOf(selectedValue) !== -1) {
+            selectEl.value = selectedValue;
+            customInput.classList.add('hidden');
+            customInput.value = '';
+          } else {
+            selectEl.value = '__custom__';
+            customInput.classList.remove('hidden');
+            customInput.value = selectedValue;
+          }
+        } else {
+          selectEl.value = cat.procedures[0];
+          customInput.classList.add('hidden');
+          customInput.value = '';
+        }
+      }
+
+      function updateActivityModalFields(catId) {
+        const cat = ACTIVITY_CATEGORIES.find(c => c.id === catId) || ACTIVITY_CATEGORIES[0];
+        document.getElementById('act-col2-label').textContent = cat.col2;
+        const col3Wrap = document.getElementById('act-col3-wrapper');
+        if (cat.col3) {
+          col3Wrap.classList.remove('hidden');
+          document.getElementById('act-col3-label').textContent = cat.col3;
+        } else {
+          col3Wrap.classList.add('hidden');
+        }
+        const sigWrap = document.getElementById('act-sig-wrapper');
+        if (cat.hasSig) {
+          sigWrap.classList.remove('hidden');
+        } else {
+          sigWrap.classList.add('hidden');
+        }
+      }
+
+      // Render Functions
+      function renderDashboard() {
+        let mainTotal = 0;
+        let asstTotal = 0;
+        const tbody = document.getElementById('dashboard-surgery-progress');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        SURGERY_CATEGORIES.forEach(cat => {
+          const catSurgs = appState.surgeries.filter(s => s.category === cat.id);
+          const doneMain = catSurgs.filter(s => s.role === 'main').length;
+          const doneAsst = catSurgs.filter(s => s.role === 'assistant').length;
+          if (cat.reqMain > 0) mainTotal += doneMain;
+          if (cat.reqAsst > 0) asstTotal += doneAsst;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-5 py-3 font-medium text-slate-800">${escapeHtml(cat.title)}</td>
+            <td class="px-5 py-3">
+              ${cat.reqMain > 0
+                ? `<span class="font-bold ${doneMain >= cat.reqMain ? 'text-emerald-600' : 'text-blue-600'}">${doneMain}</span> / ${cat.reqMain}`
+                : `<span class="text-slate-400">${doneMain} logged</span>`}
+            </td>
+            <td class="px-5 py-3">
+              ${cat.reqAsst > 0
+                ? `<span class="font-bold ${doneAsst >= cat.reqAsst ? 'text-emerald-600' : 'text-indigo-600'}">${doneAsst}</span> / ${cat.reqAsst}`
+                : `<span class="text-slate-400">${doneAsst} logged</span>`}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('stat-main-total').textContent = mainTotal;
+        document.getElementById('bar-main-total').style.width = Math.min(100, (mainTotal / 90) * 100) + '%';
+
+        document.getElementById('stat-asst-total').textContent = asstTotal;
+        document.getElementById('bar-asst-total').style.width = Math.min(100, (asstTotal / 165) * 100) + '%';
+
+        const laserCount = appState.lasers.length;
+        document.getElementById('stat-laser-total').textContent = laserCount;
+        document.getElementById('bar-laser-total').style.width = Math.min(100, (laserCount / 55) * 100) + '%';
+
+        document.getElementById('stat-sci-total').textContent = appState.activities.length;
+
+        const actCards = document.getElementById('dashboard-activity-cards');
+        actCards.innerHTML = '';
+        ACTIVITY_CATEGORIES.slice(0, 5).forEach(cat => {
+          const count = appState.activities.filter(a => a.category === cat.id).length;
+          const div = document.createElement('div');
+          div.className = 'p-3.5 rounded-xl bg-slate-50 border border-slate-200';
+          div.innerHTML = `
+            <div class="text-xs font-bold text-slate-800">${escapeHtml(cat.short)}</div>
+            <div class="text-2xl font-bold text-emerald-600 mt-1">${count}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(cat.reqText)}</div>
+          `;
+          actCards.appendChild(div);
+        });
+      }
+
+      function renderProfile() {
+        document.querySelectorAll('[data-profile]').forEach(el => {
+          const key = el.getAttribute('data-profile');
+          el.value = appState.profile[key] || '';
+        });
+
+        document.getElementById('supSig1-status').textContent = appState.profile.supSig1 ? '✅ Electronic signature saved' : 'No e-signature (blank box in PDF)';
+        document.getElementById('supSig2-status').textContent = appState.profile.supSig2 ? '✅ Electronic signature saved' : 'No e-signature (blank box in PDF)';
+
+        const hospList = document.getElementById('hospitals-list');
+        hospList.innerHTML = '';
+        appState.profile.hospitals.forEach((h, idx) => {
+          const row = document.createElement('div');
+          row.className = 'grid grid-cols-12 gap-2 items-center';
+          row.innerHTML = `
+            <input type="text" data-array="hospitals" data-idx="${idx}" data-field="date" value="${escapeHtml(h.date)}" placeholder="Date (e.g. 2025 - 2026)" class="col-span-4 px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            <input type="text" data-array="hospitals" data-idx="${idx}" data-field="hospital" value="${escapeHtml(h.hospital)}" placeholder="Hospital Name" class="col-span-7 px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            <button type="button" data-action="del-array-row" data-array="hospitals" data-idx="${idx}" class="col-span-1 text-rose-500 hover:text-rose-700 font-bold text-center cursor-pointer">✕</button>
+          `;
+          hospList.appendChild(row);
+        });
+
+        const vacList = document.getElementById('vacations-list');
+        vacList.innerHTML = '';
+        appState.profile.vacations.forEach((v, idx) => {
+          const row = document.createElement('div');
+          row.className = 'grid grid-cols-11 gap-2 items-center';
+          row.innerHTML = `
+            <input type="date" data-array="vacations" data-idx="${idx}" data-field="from" value="${escapeHtml(v.from)}" class="col-span-5 px-2.5 py-2 border border-slate-300 rounded-lg text-xs" />
+            <input type="date" data-array="vacations" data-idx="${idx}" data-field="to" value="${escapeHtml(v.to)}" class="col-span-5 px-2.5 py-2 border border-slate-300 rounded-lg text-xs" />
+            <button type="button" data-action="del-array-row" data-array="vacations" data-idx="${idx}" class="col-span-1 text-rose-500 hover:text-rose-700 font-bold text-center cursor-pointer">✕</button>
+          `;
+          vacList.appendChild(row);
+        });
+
+        const sickList = document.getElementById('sickleave-list');
+        sickList.innerHTML = '';
+        appState.profile.sickLeaves.forEach((s, idx) => {
+          const row = document.createElement('div');
+          row.className = 'grid grid-cols-11 gap-2 items-center';
+          row.innerHTML = `
+            <input type="date" data-array="sickLeaves" data-idx="${idx}" data-field="from" value="${escapeHtml(s.from)}" class="col-span-5 px-2.5 py-2 border border-slate-300 rounded-lg text-xs" />
+            <input type="date" data-array="sickLeaves" data-idx="${idx}" data-field="to" value="${escapeHtml(s.to)}" class="col-span-5 px-2.5 py-2 border border-slate-300 rounded-lg text-xs" />
+            <button type="button" data-action="del-array-row" data-array="sickLeaves" data-idx="${idx}" class="col-span-1 text-rose-500 hover:text-rose-700 font-bold text-center cursor-pointer">✕</button>
+          `;
+          sickList.appendChild(row);
+        });
+      }
+
+      function renderSurgeries() {
+        const pills = document.getElementById('surgery-filter-pills');
+        pills.innerHTML = `<button type="button" data-surg-filter="all" class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${activeSurgeryFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">All (${appState.surgeries.length})</button>`;
+        SURGERY_CATEGORIES.forEach(cat => {
+          const cnt = appState.surgeries.filter(s => s.category === cat.id).length;
+          pills.innerHTML += `<button type="button" data-surg-filter="${cat.id}" class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${activeSurgeryFilter === cat.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">${escapeHtml(cat.shortTitle || cat.title)} (${cnt})</button>`;
+        });
+
+        const filtered = activeSurgeryFilter === 'all'
+          ? appState.surgeries
+          : appState.surgeries.filter(s => s.category === activeSurgeryFilter);
+
+        const tbody = document.getElementById('surgeries-table-body');
+        tbody.innerHTML = '';
+        if (!filtered.length) {
+          tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-8 text-center text-slate-400">No surgeries recorded yet. Click "+ Add Surgery" to start logging.</td></tr>`;
+          return;
+        }
+
+        filtered.forEach((item, index) => {
+          const catObj = SURGERY_CATEGORIES.find(c => c.id === item.category);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-3 font-semibold text-slate-700">${index + 1}</td>
+            <td class="px-4 py-3 text-xs font-medium text-blue-700">${escapeHtml(catObj ? catObj.title : item.category)}</td>
+            <td class="px-4 py-3 text-slate-700 whitespace-nowrap">${escapeHtml(item.date)}</td>
+            <td class="px-4 py-3 font-mono text-slate-800">${escapeHtml(item.patientId)}</td>
+            <td class="px-4 py-3 text-slate-800">${escapeHtml(item.mainSurgeon)}</td>
+            <td class="px-4 py-3 text-slate-600">${escapeHtml(item.assistantSurgeon)}</td>
+            <td class="px-4 py-3 font-medium text-slate-900">${escapeHtml(item.surgery)}</td>
+            <td class="px-4 py-3">
+              ${item.signature
+                ? `<img src="${item.signature}" alt="Sig" class="h-8 border rounded bg-white p-0.5" />`
+                : `<button type="button" data-action="quick-sign" data-type="surgery" data-id="${item.id}" class="px-2.5 py-1 text-xs border border-dashed border-slate-400 rounded text-slate-600 hover:bg-slate-100 cursor-pointer">✍️ Sign</button>`}
+            </td>
+            <td class="px-4 py-3 text-right whitespace-nowrap space-x-1">
+              <button type="button" data-action="edit-surgery" data-id="${item.id}" class="px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded text-slate-700 cursor-pointer">Edit</button>
+              <button type="button" data-action="delete-surgery" data-id="${item.id}" class="px-2 py-1 text-xs bg-rose-50 hover:bg-rose-100 rounded text-rose-600 cursor-pointer">Del</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderActivities() {
+        const pills = document.getElementById('activity-filter-pills');
+        pills.innerHTML = `<button type="button" data-act-filter="all" class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${activeActivityFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">All (${appState.activities.length})</button>`;
+        ACTIVITY_CATEGORIES.forEach(cat => {
+          const cnt = appState.activities.filter(a => a.category === cat.id).length;
+          pills.innerHTML += `<button type="button" data-act-filter="${cat.id}" class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${activeActivityFilter === cat.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">${escapeHtml(cat.short)} (${cnt})</button>`;
+        });
+
+        const filtered = activeActivityFilter === 'all'
+          ? appState.activities
+          : appState.activities.filter(a => a.category === activeActivityFilter);
+
+        const tbody = document.getElementById('activities-table-body');
+        tbody.innerHTML = '';
+        if (!filtered.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">No activities or on-call duties recorded yet.</td></tr>`;
+          return;
+        }
+
+        filtered.forEach((item, idx) => {
+          const catObj = ACTIVITY_CATEGORIES.find(c => c.id === item.category);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-3 font-semibold text-slate-700">${idx + 1}</td>
+            <td class="px-4 py-3 text-xs font-medium text-emerald-700">${escapeHtml(catObj ? catObj.short : item.category)}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-slate-700">${escapeHtml(item.date)}</td>
+            <td class="px-4 py-3 text-slate-800">${escapeHtml(item.col2)}</td>
+            <td class="px-4 py-3 text-slate-600">${escapeHtml(item.col3 || '-')}</td>
+            <td class="px-4 py-3">
+              ${!catObj || !catObj.hasSig
+                ? `<span class="text-xs text-slate-400">N/A</span>`
+                : item.signature
+                  ? `<img src="${item.signature}" alt="Sig" class="h-8 border rounded bg-white p-0.5" />`
+                  : `<button type="button" data-action="quick-sign" data-type="activity" data-id="${item.id}" class="px-2.5 py-1 text-xs border border-dashed border-slate-400 rounded text-slate-600 hover:bg-slate-100 cursor-pointer">✍️ Sign</button>`}
+            </td>
+            <td class="px-4 py-3 text-right whitespace-nowrap space-x-1">
+              <button type="button" data-action="edit-activity" data-id="${item.id}" class="px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded text-slate-700 cursor-pointer">Edit</button>
+              <button type="button" data-action="delete-activity" data-id="${item.id}" class="px-2 py-1 text-xs bg-rose-50 hover:bg-rose-100 rounded text-rose-600 cursor-pointer">Del</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderLasers() {
+        const tbody = document.getElementById('lasers-table-body');
+        tbody.innerHTML = '';
+        if (!appState.lasers.length) {
+          tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">No laser operations recorded yet. Click "+ Add Laser Procedure" to log.</td></tr>`;
+          return;
+        }
+
+        appState.lasers.forEach((item, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-3 font-semibold text-slate-700">${idx + 1}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-slate-700">${escapeHtml(item.date)}</td>
+            <td class="px-4 py-3 font-mono text-slate-800">${escapeHtml(item.patientId)}</td>
+            <td class="px-4 py-3 font-medium text-slate-900">${escapeHtml(item.laserType)}</td>
+            <td class="px-4 py-3">
+              ${item.signature
+                ? `<img src="${item.signature}" alt="Sig" class="h-8 border rounded bg-white p-0.5" />`
+                : `<button type="button" data-action="quick-sign" data-type="laser" data-id="${item.id}" class="px-2.5 py-1 text-xs border border-dashed border-slate-400 rounded text-slate-600 hover:bg-slate-100 cursor-pointer">✍️ Sign</button>`}
+            </td>
+            <td class="px-4 py-3 text-right whitespace-nowrap space-x-1">
+              <button type="button" data-action="edit-laser" data-id="${item.id}" class="px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded text-slate-700 cursor-pointer">Edit</button>
+              <button type="button" data-action="delete-laser" data-id="${item.id}" class="px-2 py-1 text-xs bg-rose-50 hover:bg-rose-100 rounded text-rose-600 cursor-pointer">Del</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderAll() {
+        renderDashboard();
+        renderProfile();
+        renderSurgeries();
+        renderActivities();
+        renderLasers();
+        updateDriveUI();
+      }
+
+      // Build Official Iraqi Board PDF HTML (2025 Format)
+      function buildOfficialPdfHtml() {
+        const p = appState.profile;
+        const sigHtml = (dataUrl) => dataUrl ? `<img src="${dataUrl}" />` : '';
+        const padRows = (items, minRows, rowRenderer) => {
+          const total = Math.max(minRows, items.length);
+          let out = '';
+          for (let i = 0; i < total; i++) {
+            out += rowRenderer(items[i] || null, i + 1);
+          }
+          return out;
+        };
+
+        let html = '';
+
+        // PAGE 1: COVER PAGE
+        html += `
+          <div class="pdf-page" style="display:flex; flex-direction:column; justify-content:space-between; text-align:center;">
+            <div style="margin-top:20px;">
+              <svg width="130" height="130" viewBox="0 0 140 140" style="margin:0 auto 10px auto;">
+                <circle cx="70" cy="70" r="64" fill="none" stroke="#b45309" stroke-width="2.5"/>
+                <path d="M55,32 L85,32 L98,48 L92,78 L72,106 L52,96 L44,68 Z" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+                <path d="M74,42 A12,12 0 1,0 82,58 A9,9 0 1,1 74,42 Z" fill="#dc2626"/>
+                <path d="M56,64 L84,64 L78,80 L62,80 Z" fill="#d97706"/>
+                <rect x="67" y="80" width="6" height="14" fill="#d97706"/>
+                <rect x="58" y="94" width="24" height="4" fill="#d97706"/>
+              </svg>
+              <div class="arabic-font" style="font-size:18pt; font-weight:bold; margin-bottom:6px;">وفوق كل ذي علم عليم</div>
+              <div style="font-size:17pt; font-weight:bold; margin-top:8px;">Iraqi Board of Medical Specialties</div>
+              <div style="font-size:15pt; font-weight:bold; margin-top:4px;">Scientific Council of Ophthalmology</div>
+              <div class="arabic-font" style="font-size:18pt; font-weight:bold; margin-top:10px;">المجلس العراقي للاختصاصات الطبية</div>
+              <div class="arabic-font" style="font-size:16pt; font-weight:bold;">المجلس العلمي لاختصاص طب وجراحة العيون</div>
+            </div>
+
+            <div style="text-align:left; width:82%; margin:0 auto; font-size:13pt; line-height:2.2;">
+              <div><strong>Student name:</strong> <span style="border-bottom:1px dotted #000; display:inline-block; min-width:260px;">${escapeHtml(p.name)}</span></div>
+              <div><strong>Student academic number:</strong> <span style="border-bottom:1px dotted #000; display:inline-block; min-width:200px;">${escapeHtml(p.academicNumber)}</span></div>
+            </div>
+
+            <div style="margin-bottom:30px;">
+              <div style="font-size:24pt; font-weight:bold; letter-spacing:1px;">Logbook</div>
+              <div style="font-size:18pt; font-weight:bold; margin-top:4px;">2025</div>
+            </div>
+          </div>
+        `;
+
+        // PAGE 2: GENERAL INSTRUCTIONS
+        html += `
+          <div class="pdf-page" style="font-size:12pt; line-height:1.7;">
+            <h2 style="font-size:15pt; font-weight:bold; margin-bottom:12px;">General instructions for the applicant</h2>
+            <p>1- Read the instructions carefully before filling out any parts of the logbook. If you find any difficulty, you should consult your training office in your hospital.</p>
+            <p>2- You must fill out the logbook for the entire training period, on a daily basis, submit a copy of it annually to the scientific council of ophthalmology.</p>
+            <p>3- Three months before the end of the training period, the supervisor shall send a report to the Iraqi council approving what is stated in the training record.</p>
+            <p>4- The person responsible for training must sign and date the start of training on this logbook.</p>
+            <p>5- The trainee must always carry this logbook with him during work.</p>
+            <p>6- The trainee must write down the periods of sick leave and vacations.</p>
+
+            <h2 style="font-size:15pt; font-weight:bold; margin-top:28px; margin-bottom:12px;">Instructions for the training supervisor</h2>
+            <p>The training supervisor is required to sign the activities recorded in the training logbook.</p>
+            <p>If there is a lack of training in the practical or theoretical aspects, this must be indicated, and all measures must be taken to overcome it.</p>
+          </div>
+        `;
+
+        // PAGE 3: PERSONAL INFORMATION & TRAINING HOSPITALS
+        html += `
+          <div class="pdf-page" style="font-size:12pt; line-height:1.9;">
+            <h2 style="font-size:15pt; font-weight:bold; margin-bottom:14px;">Personal information</h2>
+            <div><strong>Name:</strong> ${escapeHtml(p.name)}</div>
+            <div><strong>Sex:</strong> ${escapeHtml(p.sex)}</div>
+            <div><strong>Date and place of birth:</strong> ${escapeHtml(p.dob)}</div>
+            <div><strong>Nationality:</strong> ${escapeHtml(p.nationality)}</div>
+            <div><strong>Year of passing the primary examination:</strong> ${escapeHtml(p.primaryExamYear)}</div>
+            <div><strong>Year of graduation:</strong> ${escapeHtml(p.graduationYear)}</div>
+
+            <h3 style="font-size:13pt; font-weight:bold; margin-top:24px; margin-bottom:8px;">Training:</h3>
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th style="width:35%;">Date</th>
+                  <th style="width:65%;">Hospitals</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${padRows(p.hospitals, 6, (item) => `
+                  <tr>
+                    <td style="height:28px;">${item ? escapeHtml(item.date) : ''}</td>
+                    <td>${item ? escapeHtml(item.hospital) : ''}</td>
+                  </tr>
+                `)}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // PAGE 4 & 5: SUPERVISOR COMMENTS + VACATIONS & SICK LEAVE
+        html += `
+          <div class="pdf-page" style="font-size:12pt;">
+            <h2 style="font-size:15pt; font-weight:bold; margin-bottom:10px;">Comments of Supervisor</h2>
+            <div style="border:1px solid #000; min-height:140px; padding:10px; margin-bottom:16px;">${escapeHtml(p.supComment1)}</div>
+            <div style="line-height:2; margin-bottom:32px;">
+              <div><strong>Supervisor:</strong> ${escapeHtml(p.supName1)}</div>
+              <div><strong>Signature:</strong> ${p.supSig1 ? `<img src="${p.supSig1}" style="max-height:40px; vertical-align:middle;" />` : '________________________'}</div>
+              <div><strong>Date:</strong> ${escapeHtml(p.supDate1)}</div>
+            </div>
+
+            <h3 style="font-size:13pt; font-weight:bold; margin-top:20px;">Annual vacations</h3>
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th style="width:50%;">From</th>
+                  <th style="width:50%;">To</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${padRows(p.vacations, 5, (v) => `
+                  <tr>
+                    <td style="height:26px;">${v ? escapeHtml(v.from) : ''}</td>
+                    <td>${v ? escapeHtml(v.to) : ''}</td>
+                  </tr>
+                `)}
+              </tbody>
+            </table>
+
+            <h3 style="font-size:13pt; font-weight:bold; margin-top:18px;">Annual sick leave</h3>
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th style="width:50%;">From</th>
+                  <th style="width:50%;">To</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${padRows(p.sickLeaves, 5, (s) => `
+                  <tr>
+                    <td style="height:26px;">${s ? escapeHtml(s.from) : ''}</td>
+                    <td>${s ? escapeHtml(s.to) : ''}</td>
+                  </tr>
+                `)}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // PAGE 6: INTRODUCTION TABLE + CASE PRESENTATION
+        const getActs = (catId) => appState.activities.filter(a => a.category === catId);
+        html += `
+          <div class="pdf-page" style="font-size:12pt;">
+            <h2 style="font-size:15pt; font-weight:bold; margin-bottom:6px;">Introduction</h2>
+            <p style="font-weight:bold; margin-bottom:8px;">Scientific activity required to be completed by the trainee</p>
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th style="width:50%;">Task</th>
+                  <th style="width:50%;">Minimal requirements</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Case presentation</td><td>3 per year</td></tr>
+                <tr><td>Journal club</td><td>3 per year</td></tr>
+                <tr><td>Grand round</td><td>1 per week</td></tr>
+                <tr><td>Outpatient clinic</td><td>1 per week</td></tr>
+                <tr><td>On call duties</td><td>1 per week</td></tr>
+              </tbody>
+            </table>
+
+            <p style="font-weight:bold; margin-top:16px; margin-bottom:6px;">Scientific and practical activity required to be completed within (5 years)</p>
+            <p style="font-weight:bold;">Case Presentation (10)</p>
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th style="width:20%;">Date</th>
+                  <th style="width:50%;">Details</th>
+                  <th style="width:30%;">Supervisor signature</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${padRows(getActs('case_presentation'), 10, (a) => `
+                  <tr>
+                    <td>${a ? escapeHtml(a.date) : ''}</td>
+                    <td>${a ? escapeHtml(a.col2) : ''}</td>
+                    <td class="sig-cell">${a ? sigHtml(a.signature) : ''}</td>
+                  </tr>
+                `)}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // REMAINING ACTIVITY TABLES
+        const otherActivities = ACTIVITY_CATEGORIES.slice(1);
+        otherActivities.forEach(cat => {
+          const items = getActs(cat.id);
+          const col3Header = cat.hasSig ? 'Supervisor signature' : cat.col3;
+          html += `
+            <div class="pdf-page" style="font-size:12pt;">
+              <p style="font-weight:bold; font-size:13pt; margin-bottom:8px;">${escapeHtml(cat.title)}</p>
+              <table class="official-table">
+                <thead>
+                  <tr>
+                    <th style="width:20%;">Date</th>
+                    <th style="width:50%;">${escapeHtml(cat.col2)}</th>
+                    <th style="width:30%;">${escapeHtml(col3Header)}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${padRows(items, 16, (a) => `
+                    <tr>
+                      <td>${a ? escapeHtml(a.date) : ''}</td>
+                      <td>${a ? escapeHtml(a.col2) : ''}</td>
+                      <td class="${cat.hasSig ? 'sig-cell' : ''}">${a ? (cat.hasSig ? sigHtml(a.signature) : escapeHtml(a.col3)) : ''}</td>
+                    </tr>
+                  `)}
+                </tbody>
+              </table>
+            </div>
+          `;
+        });
+
+        // SURGERY SUMMARY & CLASSIFICATION
+        html += `
+          <div class="pdf-page" style="font-size:11.5pt;">
+            <p style="font-weight:bold; font-size:13pt; margin-bottom:8px;">Operations done by the trainee during a minimum of (5 years)</p>
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th style="width:46%;">Type of surgery</th>
+                  <th style="width:27%; text-align:center;">Main surgeon</th>
+                  <th style="width:27%; text-align:center;">Assistant surgeon</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Oculoplastic &amp; lid surgery</td><td style="text-align:center;">10</td><td style="text-align:center;">20</td></tr>
+                <tr><td>Strabismus Surgery</td><td style="text-align:center;">20</td><td style="text-align:center;">30</td></tr>
+                <tr><td>ECCE</td><td style="text-align:center;">20</td><td style="text-align:center;">40</td></tr>
+                <tr><td>Phacoemulsification</td><td style="text-align:center;">30</td><td style="text-align:center;">40</td></tr>
+                <tr><td>Glaucoma Surgery</td><td style="text-align:center;">5</td><td style="text-align:center;">10</td></tr>
+                <tr><td>Corneal Surgery</td><td style="text-align:center;">5</td><td style="text-align:center;">10</td></tr>
+                <tr><td>Vitreoretinal surgery</td><td style="text-align:center;"></td><td style="text-align:center;">15</td></tr>
+                <tr style="font-weight:bold;"><td>Total</td><td style="text-align:center;">90</td><td style="text-align:center;">165</td></tr>
+              </tbody>
+            </table>
+
+            <p style="font-weight:bold; font-size:13pt; margin-top:16px; margin-bottom:6px;">Types of operations done by the trainee</p>
+            <div style="font-size:10.5pt; line-height:1.45;">
+              <p><strong>&bull; Oculoplastic &amp; lid surgery:</strong><br/>
+              &nbsp;&nbsp;<strong>Minor:</strong> chalazion, Tarsorrhaphy, Repair of lid wound.<br/>
+              &nbsp;&nbsp;<strong>Major:</strong> Ptosis, reconstructive lid surgery.</p>
+              <p><strong>&bull; Lacrimal Surgery</strong><br/>
+              &nbsp;&nbsp;<strong>Minor:</strong> Probing, Irrigation, intubation.<br/>
+              &nbsp;&nbsp;<strong>Major:</strong> DCR</p>
+              <p><strong>&bull; Strabismus surgery:</strong><br/>
+              &nbsp;&nbsp;Recession, Resection</p>
+              <p><strong>&bull; Glaucoma Surgery:</strong><br/>
+              &nbsp;&nbsp;Trabeculotomy, Trabeculectomy, Filtering with antimetabolites, and combined phaco - Trabeculectomy</p>
+              <p><strong>&bull; Corneal surgery:</strong><br/>
+              &nbsp;&nbsp;<strong>Minor:</strong> Removal of corneal FB, conjunctival and amniotic membrane grafts.<br/>
+              &nbsp;&nbsp;<strong>Major:</strong> Keratoplasty and repair of corneal laceration.</p>
+              <p><strong>&bull; Vitreoretinal:</strong><br/>
+              &nbsp;&nbsp;Scleral buckling procedures and pars plana vitrectomy.</p>
+            </div>
+          </div>
+        `;
+
+        // 8 SURGICAL TABLES
+        SURGERY_CATEGORIES.forEach(cat => {
+          const items = appState.surgeries.filter(s => s.category === cat.id);
+          html += `
+            <div class="pdf-page" style="font-size:11pt;">
+              <p style="font-weight:bold; font-size:13pt; margin-bottom:8px;">${escapeHtml(cat.title)}:</p>
+              <table class="official-table" style="font-size:10pt;">
+                <thead>
+                  <tr>
+                    <th style="width:6%;">N.</th>
+                    <th style="width:13%;">Date</th>
+                    <th style="width:13%;">Patient ID</th>
+                    <th style="width:16%;">Main surgeon</th>
+                    <th style="width:16%;">Assistant surgeon</th>
+                    <th style="width:18%;">Surgery</th>
+                    <th style="width:18%;">Supervisor signature</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${padRows(items, 16, (s, num) => `
+                    <tr>
+                      <td>${num}</td>
+                      <td>${s ? escapeHtml(s.date) : ''}</td>
+                      <td>${s ? escapeHtml(s.patientId) : ''}</td>
+                      <td>${s ? escapeHtml(s.mainSurgeon) : ''}</td>
+                      <td>${s ? escapeHtml(s.assistantSurgeon) : ''}</td>
+                      <td>${s ? escapeHtml(s.surgery) : ''}</td>
+                      <td class="sig-cell">${s ? sigHtml(s.signature) : ''}</td>
+                    </tr>
+                  `)}
+                </tbody>
+              </table>
+            </div>
+          `;
+        });
+
+        // LASER OPERATIONS & FINAL SUPERVISOR COMMENTS
+        html += `
+          <div class="pdf-page" style="font-size:11.5pt;">
+            <p style="font-weight:bold; font-size:13pt; margin-bottom:8px;">Types of laser operations performed by the trainee as minimum</p>
+            <table class="official-table">
+              <tbody>
+                <tr>
+                  <td style="width:35%;">YAG laser 532nm</td>
+                  <td style="width:45%;">For retinal disease</td>
+                  <td style="width:20%; text-align:center;">25</td>
+                </tr>
+                <tr>
+                  <td>YAG laser 1064nm</td>
+                  <td>Iridotomy</td>
+                  <td style="text-align:center;">15</td>
+                </tr>
+                <tr>
+                  <td>YAG laser 1064nm</td>
+                  <td>Capsulotomy</td>
+                  <td style="text-align:center;">15</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p style="font-weight:bold; font-size:13pt; margin-top:16px; margin-bottom:8px;">Laser operations performed by the trainee</p>
+            <table class="official-table" style="font-size:10.5pt;">
+              <thead>
+                <tr>
+                  <th style="width:10%;">Num.</th>
+                  <th style="width:18%;">Date</th>
+                  <th style="width:18%;">Patient ID</th>
+                  <th style="width:30%;">Laser type</th>
+                  <th style="width:24%;">Supervisor signature</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${padRows(appState.lasers, 12, (l, num) => `
+                  <tr>
+                    <td>${num}</td>
+                    <td>${l ? escapeHtml(l.date) : ''}</td>
+                    <td>${l ? escapeHtml(l.patientId) : ''}</td>
+                    <td>${l ? escapeHtml(l.laserType) : ''}</td>
+                    <td class="sig-cell">${l ? sigHtml(l.signature) : ''}</td>
+                  </tr>
+                `)}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pdf-page" style="font-size:12pt;">
+            <h2 style="font-size:15pt; font-weight:bold; margin-bottom:12px;">Comments of supervisor</h2>
+            <div style="border:1px solid #000; min-height:220px; padding:12px; margin-bottom:24px;">${escapeHtml(p.supComment2)}</div>
+            <div style="line-height:2.2;">
+              <div><strong>Supervisor Name:</strong> ${escapeHtml(p.supName2)}</div>
+              <div><strong>Signature:</strong> ${p.supSig2 ? `<img src="${p.supSig2}" style="max-height:45px; vertical-align:middle;" />` : '________________________'}</div>
+              <div><strong>Date:</strong> ${escapeHtml(p.supDate2)}</div>
+            </div>
+          </div>
+        `;
+
+        return html;
+      }
+
+      // Modal Helpers
+      function showModal(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.remove('hidden');
+          el.classList.add('flex');
+        }
+      }
+
+      function closeAllModals() {
+        ['modal-drive', 'modal-surgery', 'modal-activity', 'modal-laser', 'modal-quicksig', 'pdf-preview-modal'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+          }
+        });
+      }
+
+      function openSurgeryModal(editItem) {
+        const catSelect = document.getElementById('surg-category');
+        catSelect.innerHTML = SURGERY_CATEGORIES.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+        if (editItem) {
+          document.getElementById('modal-surgery-title').textContent = 'Edit Surgical Procedure';
+          document.getElementById('surg-edit-id').value = editItem.id;
+          catSelect.value = editItem.category;
+          document.getElementById('surg-date').value = editItem.date || '';
+          document.getElementById('surg-patient-id').value = editItem.patientId || '';
+          document.getElementById('surg-main').value = editItem.mainSurgeon || '';
+          document.getElementById('surg-assistant').value = editItem.assistantSurgeon || '';
+          document.getElementById('surg-role').value = editItem.role || 'main';
+          updateSurgeryProcedureDropdown(editItem.category, editItem.surgery);
+          if (sigPads['sig-canvas-surgery']) sigPads['sig-canvas-surgery'].loadDataUrl(editItem.signature || '');
+        } else {
+          document.getElementById('modal-surgery-title').textContent = 'Log Surgical Procedure';
+          document.getElementById('surg-edit-id').value = '';
+          const defaultCat = activeSurgeryFilter !== 'all' ? activeSurgeryFilter : 'phaco';
+          catSelect.value = defaultCat;
+          document.getElementById('surg-date').value = new Date().toISOString().split('T')[0];
+          document.getElementById('surg-patient-id').value = '';
+          document.getElementById('surg-main').value = appState.profile.name || '';
+          document.getElementById('surg-assistant').value = '';
+          document.getElementById('surg-role').value = 'main';
+          updateSurgeryProcedureDropdown(defaultCat, null);
+          if (sigPads['sig-canvas-surgery']) sigPads['sig-canvas-surgery'].clear();
+        }
+        showModal('modal-surgery');
+      }
+
+      function openActivityModal(editItem) {
+        const catSelect = document.getElementById('act-category');
+        catSelect.innerHTML = ACTIVITY_CATEGORIES.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+        if (editItem) {
+          document.getElementById('modal-activity-title').textContent = 'Edit Activity';
+          document.getElementById('act-edit-id').value = editItem.id;
+          catSelect.value = editItem.category;
+          document.getElementById('act-date').value = editItem.date || '';
+          document.getElementById('act-col2').value = editItem.col2 || '';
+          document.getElementById('act-col3').value = editItem.col3 || '';
+          updateActivityModalFields(editItem.category);
+          if (sigPads['sig-canvas-activity']) sigPads['sig-canvas-activity'].loadDataUrl(editItem.signature || '');
+        } else {
+          document.getElementById('modal-activity-title').textContent = 'Log Scientific / Clinical Activity';
+          document.getElementById('act-edit-id').value = '';
+          const defaultCat = activeActivityFilter !== 'all' ? activeActivityFilter : 'case_presentation';
+          catSelect.value = defaultCat;
+          document.getElementById('act-date').value = new Date().toISOString().split('T')[0];
+          document.getElementById('act-col2').value = '';
+          document.getElementById('act-col3').value = '';
+          updateActivityModalFields(defaultCat);
+          if (sigPads['sig-canvas-activity']) sigPads['sig-canvas-activity'].clear();
+        }
+        showModal('modal-activity');
+      }
+
+      function openLaserModal(editItem) {
+        if (editItem) {
+          document.getElementById('modal-laser-title').textContent = 'Edit Laser Procedure';
+          document.getElementById('las-edit-id').value = editItem.id;
+          document.getElementById('las-date').value = editItem.date || '';
+          document.getElementById('las-patient-id').value = editItem.patientId || '';
+          document.getElementById('las-type').value = editItem.laserType || 'YAG laser 532nm (Retinal disease)';
+          if (sigPads['sig-canvas-laser']) sigPads['sig-canvas-laser'].loadDataUrl(editItem.signature || '');
+        } else {
+          document.getElementById('modal-laser-title').textContent = 'Log Laser Operation';
+          document.getElementById('las-edit-id').value = '';
+          document.getElementById('las-date').value = new Date().toISOString().split('T')[0];
+          document.getElementById('las-patient-id').value = '';
+          document.getElementById('las-type').value = 'YAG laser 532nm (Retinal disease)';
+          if (sigPads['sig-canvas-laser']) sigPads['sig-canvas-laser'].clear();
+        }
+        showModal('modal-laser');
+      }
+
+      function downloadStandaloneHtml() {
+        const cloneDoc = document.documentElement.cloneNode(true);
+        const embeddedScript = cloneDoc.querySelector('#embedded-logbook-data');
+        if (embeddedScript) {
+          embeddedScript.textContent = JSON.stringify(appState);
+        }
+        const blob = new Blob(['<!DOCTYPE html>\n' + cloneDoc.outerHTML], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Iraqi_Board_Ophthalmology_Logbook_2025.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // Global Event Delegation
+      document.addEventListener('click', function(e) {
+        // Tab Switching
+        const tabBtn = e.target.closest('[data-tab]');
+        if (tabBtn) {
+          const targetTab = tabBtn.getAttribute('data-tab');
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          tabBtn.classList.add('active');
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+          const panel = document.getElementById('tab-' + targetTab);
+          if (panel) panel.classList.remove('hidden');
+          return;
+        }
+
+        // Filter Pills
+        const surgFilterBtn = e.target.closest('[data-surg-filter]');
+        if (surgFilterBtn) {
+          activeSurgeryFilter = surgFilterBtn.getAttribute('data-surg-filter');
+          renderSurgeries();
+          return;
+        }
+        const actFilterBtn = e.target.closest('[data-act-filter]');
+        if (actFilterBtn) {
+          activeActivityFilter = actFilterBtn.getAttribute('data-act-filter');
+          renderActivities();
+          return;
+        }
+
+        // Actions
+        const actionBtn = e.target.closest('[data-action]');
+        if (!actionBtn) return;
+        const action = actionBtn.getAttribute('data-action');
+
+        if (action === 'close-modals') {
+          closeAllModals();
+        } else if (action === 'open-drive-modal') {
+          const cidInput = document.getElementById('google-client-id-input');
+          if (cidInput) cidInput.value = getGoogleClientId();
+          updateDriveUI();
+          showModal('modal-drive');
+        } else if (action === 'save-client-id') {
+          const val = document.getElementById('google-client-id-input').value.trim();
+          try {
+            localStorage.setItem(CLIENT_ID_STORAGE_KEY, val);
+          } catch (err) {}
+          initGoogleTokenClient();
+          setDriveLog('Google OAuth Client ID saved locally. You can now click "Sign in with Google (Gmail)".', false);
+        } else if (action === 'google-signin') {
+          startGoogleSignIn();
+        } else if (action === 'drive-sync-now') {
+          twoWayCloudSync(false);
+        } else if (action === 'google-signout') {
+          if (googleAccessToken && window.google && window.google.accounts && window.google.accounts.oauth2) {
+            try { window.google.accounts.oauth2.revoke(googleAccessToken); } catch (err) {}
+          }
+          googleAccessToken = null;
+          googleUserEmail = '';
+          driveFileId = null;
+          updateDriveUI();
+          setDriveLog('Signed out from Google Drive.', false);
+        } else if (action === 'open-modal-surgery') {
+          openSurgeryModal(null);
+        } else if (action === 'open-modal-activity') {
+          openActivityModal(null);
+        } else if (action === 'open-modal-laser') {
+          openLaserModal(null);
+        } else if (action === 'clear-sig-surgery') {
+          if (sigPads['sig-canvas-surgery']) sigPads['sig-canvas-surgery'].clear();
+        } else if (action === 'clear-sig-activity') {
+          if (sigPads['sig-canvas-activity']) sigPads['sig-canvas-activity'].clear();
+        } else if (action === 'clear-sig-laser') {
+          if (sigPads['sig-canvas-laser']) sigPads['sig-canvas-laser'].clear();
+        } else if (action === 'clear-sig-quick') {
+          if (sigPads['sig-canvas-quick']) sigPads['sig-canvas-quick'].clear();
+        } else if (action === 'save-surgery') {
+          const editId = document.getElementById('surg-edit-id').value;
+          const procSelect = document.getElementById('surg-procedure-select').value;
+          const procText = procSelect === '__custom__'
+            ? document.getElementById('surg-procedure-custom').value.trim()
+            : procSelect;
+
+          const record = {
+            id: editId || ('surg_' + Date.now()),
+            category: document.getElementById('surg-category').value,
+            date: document.getElementById('surg-date').value,
+            patientId: document.getElementById('surg-patient-id').value.trim(),
+            mainSurgeon: document.getElementById('surg-main').value.trim(),
+            assistantSurgeon: document.getElementById('surg-assistant').value.trim(),
+            role: document.getElementById('surg-role').value,
+            surgery: procText,
+            signature: sigPads['sig-canvas-surgery'] ? sigPads['sig-canvas-surgery'].getDataUrl() : ''
+          };
+
+          if (editId) {
+            const idx = appState.surgeries.findIndex(s => s.id === editId);
+            if (idx > -1) appState.surgeries[idx] = record;
+          } else {
+            appState.surgeries.push(record);
+          }
+          persistState();
+          renderAll();
+          closeAllModals();
+        } else if (action === 'edit-surgery') {
+          const id = actionBtn.getAttribute('data-id');
+          const item = appState.surgeries.find(s => s.id === id);
+          if (item) openSurgeryModal(item);
+        } else if (action === 'delete-surgery') {
+          const id = actionBtn.getAttribute('data-id');
+          appState.surgeries = appState.surgeries.filter(s => s.id !== id);
+          persistState();
+          renderAll();
+        } else if (action === 'save-activity') {
+          const editId = document.getElementById('act-edit-id').value;
+          const catId = document.getElementById('act-category').value;
+          const catObj = ACTIVITY_CATEGORIES.find(c => c.id === catId);
+          const record = {
+            id: editId || ('act_' + Date.now()),
+            category: catId,
+            date: document.getElementById('act-date').value,
+            col2: document.getElementById('act-col2').value.trim(),
+            col3: catObj && catObj.col3 ? document.getElementById('act-col3').value.trim() : '',
+            signature: (catObj && catObj.hasSig && sigPads['sig-canvas-activity']) ? sigPads['sig-canvas-activity'].getDataUrl() : ''
+          };
+          if (editId) {
+            const idx = appState.activities.findIndex(a => a.id === editId);
+            if (idx > -1) appState.activities[idx] = record;
+          } else {
+            appState.activities.push(record);
+          }
+          persistState();
+          renderAll();
+          closeAllModals();
+        } else if (action === 'edit-activity') {
+          const id = actionBtn.getAttribute('data-id');
+          const item = appState.activities.find(a => a.id === id);
+          if (item) openActivityModal(item);
+        } else if (action === 'delete-activity') {
+          const id = actionBtn.getAttribute('data-id');
+          appState.activities = appState.activities.filter(a => a.id !== id);
+          persistState();
+          renderAll();
+        } else if (action === 'save-laser') {
+          const editId = document.getElementById('las-edit-id').value;
+          const record = {
+            id: editId || ('las_' + Date.now()),
+            date: document.getElementById('las-date').value,
+            patientId: document.getElementById('las-patient-id').value.trim(),
+            laserType: document.getElementById('las-type').value,
+            signature: sigPads['sig-canvas-laser'] ? sigPads['sig-canvas-laser'].getDataUrl() : ''
+          };
+          if (editId) {
+            const idx = appState.lasers.findIndex(l => l.id === editId);
+            if (idx > -1) appState.lasers[idx] = record;
+          } else {
+            appState.lasers.push(record);
+          }
+          persistState();
+          renderAll();
+          closeAllModals();
+        } else if (action === 'edit-laser') {
+          const id = actionBtn.getAttribute('data-id');
+          const item = appState.lasers.find(l => l.id === id);
+          if (item) openLaserModal(item);
+        } else if (action === 'delete-laser') {
+          const id = actionBtn.getAttribute('data-id');
+          appState.lasers = appState.lasers.filter(l => l.id !== id);
+          persistState();
+          renderAll();
+        } else if (action === 'quick-sign') {
+          const type = actionBtn.getAttribute('data-type');
+          const id = actionBtn.getAttribute('data-id');
+          document.getElementById('quicksig-target').value = type + ':' + id;
+          if (sigPads['sig-canvas-quick']) sigPads['sig-canvas-quick'].clear();
+          showModal('modal-quicksig');
+        } else if (action === 'sign-profile-sup1') {
+          document.getElementById('quicksig-target').value = 'profile:supSig1';
+          if (sigPads['sig-canvas-quick']) sigPads['sig-canvas-quick'].loadDataUrl(appState.profile.supSig1 || '');
+          showModal('modal-quicksig');
+        } else if (action === 'sign-profile-sup2') {
+          document.getElementById('quicksig-target').value = 'profile:supSig2';
+          if (sigPads['sig-canvas-quick']) sigPads['sig-canvas-quick'].loadDataUrl(appState.profile.supSig2 || '');
+          showModal('modal-quicksig');
+        } else if (action === 'save-quicksig') {
+          const target = document.getElementById('quicksig-target').value;
+          const [type, id] = target.split(':');
+          const sigData = sigPads['sig-canvas-quick'] ? sigPads['sig-canvas-quick'].getDataUrl() : '';
+          if (type === 'surgery') {
+            const item = appState.surgeries.find(s => s.id === id);
+            if (item) item.signature = sigData;
+          } else if (type === 'activity') {
+            const item = appState.activities.find(a => a.id === id);
+            if (item) item.signature = sigData;
+          } else if (type === 'laser') {
+            const item = appState.lasers.find(l => l.id === id);
+            if (item) item.signature = sigData;
+          } else if (type === 'profile') {
+            appState.profile[id] = sigData;
+          }
+          persistState();
+          renderAll();
+          closeAllModals();
+        } else if (action === 'add-hospital-row') {
+          appState.profile.hospitals.push({ date: '', hospital: '' });
+          persistState();
+          renderProfile();
+        } else if (action === 'add-vacation-row') {
+          appState.profile.vacations.push({ from: '', to: '' });
+          persistState();
+          renderProfile();
+        } else if (action === 'add-sick-row') {
+          appState.profile.sickLeaves.push({ from: '', to: '' });
+          persistState();
+          renderProfile();
+        } else if (action === 'del-array-row') {
+          const arrName = actionBtn.getAttribute('data-array');
+          const idx = parseInt(actionBtn.getAttribute('data-idx'), 10);
+          if (appState.profile[arrName] && appState.profile[arrName].length > 1) {
+            appState.profile[arrName].splice(idx, 1);
+            persistState();
+            renderProfile();
+          }
+        } else if (action === 'open-pdf-preview') {
+          document.getElementById('pdf-export-container').innerHTML = buildOfficialPdfHtml();
+          showModal('pdf-preview-modal');
+        } else if (action === 'download-pdf-file') {
+          const btn = document.getElementById('btn-download-pdf');
+          const origText = btn.textContent;
+          btn.textContent = '⏳ Generating PDF...';
+          btn.disabled = true;
+          const element = document.getElementById('pdf-export-container');
+          const opt = {
+            margin: 0,
+            filename: 'Iraqi_Board_Ophthalmology_Logbook_2025.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+          if (window.html2pdf) {
+            window.html2pdf().set(opt).from(element).save().then(function() {
+              btn.textContent = origText;
+              btn.disabled = false;
+            }).catch(function() {
+              btn.textContent = origText;
+              btn.disabled = false;
+              window.print();
+            });
+          } else {
+            btn.textContent = origText;
+            btn.disabled = false;
+            window.print();
+          }
+        } else if (action === 'print-pdf') {
+          window.print();
+        } else if (action === 'save-standalone') {
+          downloadStandaloneHtml();
+        } else if (action === 'export-json') {
+          const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'Iraqi_Board_Logbook_Backup.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      });
+
+      // Input & Change Listeners
+      document.addEventListener('input', function(e) {
+        if (e.target.hasAttribute('data-profile')) {
+          const key = e.target.getAttribute('data-profile');
+          appState.profile[key] = e.target.value;
+          persistState();
+        } else if (e.target.hasAttribute('data-array')) {
+          const arrName = e.target.getAttribute('data-array');
+          const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+          const field = e.target.getAttribute('data-field');
+          if (appState.profile[arrName] && appState.profile[arrName][idx]) {
+            appState.profile[arrName][idx][field] = e.target.value;
+            persistState();
+          }
+        }
+      });
+
+      document.addEventListener('change', function(e) {
+        if (e.target.id === 'surg-category') {
+          updateSurgeryProcedureDropdown(e.target.value, null);
+        } else if (e.target.id === 'surg-procedure-select') {
+          const customInput = document.getElementById('surg-procedure-custom');
+          if (e.target.value === '__custom__') {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+          } else {
+            customInput.classList.add('hidden');
+          }
+        } else if (e.target.id === 'act-category') {
+          updateActivityModalFields(e.target.value);
+        } else if (e.target.id === 'import-json-input') {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            try {
+              const imported = JSON.parse(ev.target.result);
+              mergeState(imported);
+              persistState();
+              renderAll();
+              const statusEl = document.getElementById('save-status');
+              if (statusEl) statusEl.textContent = '✅ Backup Restored!';
+            } catch (err) {
+              const statusEl = document.getElementById('save-status');
+              if (statusEl) statusEl.textContent = '⚠️ Invalid JSON file';
+            }
+          };
+          reader.readAsText(file);
+          e.target.value = '';
+        }
+      });
+
+      // Safe Initialization
+      function bootstrapApp() {
+        try {
+          setupSignatureCanvas('sig-canvas-surgery');
+          setupSignatureCanvas('sig-canvas-activity');
+          setupSignatureCanvas('sig-canvas-laser');
+          setupSignatureCanvas('sig-canvas-quick');
+          initStorage();
+          renderAll();
+        } catch (err) {
+          console.error('App initialization error:', err);
+        }
+
+        // Safely initialize Google Identity Services without blocking UI
+        try {
+          if (!initGoogleTokenClient()) {
+            window.addEventListener('load', function() {
+              try { initGoogleTokenClient(); } catch (e) {}
+            });
+          }
+        } catch (e) {}
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootstrapApp);
+      } else {
+        bootstrapApp();
+      }
+    })();
+  </script>
+</body>
+</html>
